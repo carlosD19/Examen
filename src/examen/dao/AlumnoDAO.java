@@ -9,7 +9,9 @@ import examen.entities.Alumno;
 import examen.entities.MiError;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 
 /**
  *
@@ -32,5 +34,32 @@ public class AlumnoDAO {
             throw new MiError("Problemas al insertar alumno.");
         }
     }
+
+    public ArrayList<Alumno> cargar() {
+        ArrayList<Alumno> alumnos = new ArrayList<>();
+        try (Connection con = Conexion.conexion()) {
+            String sql = "select * from alumno";
+            PreparedStatement stmt = con.prepareStatement(sql);
+            ResultSet rs = stmt.executeQuery();
+            while (rs.next()) {
+                alumnos.add(cargarAlumno(rs));
+            }
+        } catch (Exception ex) {
+            throw new MiError("Problemas al cargar las pruebas.");
+        }
+        return alumnos;
+    }
     
+    
+    
+    
+    public Alumno cargarAlumno(ResultSet rs) throws SQLException{
+        Alumno p = new Alumno();
+        
+        p.setId(rs.getInt("id"));
+        p.setNombre(rs.getString("nombre"));
+        p.setPorcentaje(rs.getFloat("porcentaje"));
+        
+        return p;
+    }
 }
