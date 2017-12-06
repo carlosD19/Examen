@@ -19,6 +19,10 @@ import java.util.ArrayList;
  */
 public class PruebaDAO {
 
+    /**
+     * Cargar todas las pruebas que existan en la base de datos
+     * @return la lista de pruebas
+     */
     public ArrayList<Prueba> cargar(){
 
        ArrayList<Prueba> pruebas = new ArrayList<>();
@@ -34,7 +38,12 @@ public class PruebaDAO {
         }
         return pruebas;
     }
-    
+    /**
+     * Carga la prueba que recibe por parametro al objeto
+     * @param rs
+     * @return el objeto Prueba
+     * @throws SQLException 
+     */
     public Prueba cargarPrueba(ResultSet rs) throws SQLException{
         Prueba p = new Prueba();
         

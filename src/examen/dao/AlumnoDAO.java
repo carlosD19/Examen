@@ -19,6 +19,11 @@ import java.util.ArrayList;
  */
 public class AlumnoDAO {
 
+    /**
+     * inserta al alumno que recibe por parametro
+     * @param a
+     * @return true = si se agregro y false = si hubo un error
+     */
     public boolean insertar(Alumno a) {
           try (Connection con = Conexion.conexion()) {
             String sql = "insert into alumno(nombre,apellido,cedula) values(?,?,?)";
@@ -34,7 +39,10 @@ public class AlumnoDAO {
             throw new MiError("Problemas al insertar alumno.");
         }
     }
-
+    /**
+     * Carga todos los alumnos de la base de datos
+     * @return la lista de los alumnos
+     */
     public ArrayList<Alumno> cargar() {
         ArrayList<Alumno> alumnos = new ArrayList<>();
         try (Connection con = Conexion.conexion()) {
@@ -50,16 +58,19 @@ public class AlumnoDAO {
         return alumnos;
     }
     
-    
-    
-    
+    /**
+     * cargar el alumno que recibe de la base de datos al objeto
+     * @param rs
+     * @return un objeto Alumno
+     * @throws SQLException 
+     */
     public Alumno cargarAlumno(ResultSet rs) throws SQLException{
-        Alumno p = new Alumno();
+        Alumno a = new Alumno();
         
-        p.setId(rs.getInt("id"));
-        p.setNombre(rs.getString("nombre"));
-        p.setPorcentaje(rs.getFloat("porcentaje"));
-        
-        return p;
+        a.setId(rs.getInt("id"));
+        a.setNombre(rs.getString("nombre"));
+        a.setApellido(rs.getString("apellido"));
+        a.setCedula(rs.getString("cedula"));
+        return a;
     }
 }

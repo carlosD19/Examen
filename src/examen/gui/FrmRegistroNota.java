@@ -6,9 +6,15 @@
 package examen.gui;
 
 import examen.bo.AlumnoBo;
+import examen.bo.PruebaBo;
+import examen.bo.RegistroNotaBo;
+import examen.dao.RegistroNotaDAO;
 import examen.entities.Alumno;
+import examen.entities.MiError;
 import examen.entities.Prueba;
+import examen.entities.RegistroNota;
 import java.util.ArrayList;
+import javax.swing.table.DefaultTableModel;
 
 /**
  *
@@ -18,13 +24,23 @@ public class FrmRegistroNota extends javax.swing.JFrame {
 
     ArrayList<Alumno> alumnos;
     ArrayList<Prueba> pruebas;
+    ArrayList<RegistroNota> registros;
+    DefaultTableModel modeloA;
+    DefaultTableModel modeloP;
+
     /**
      * Creates new form FrmRegistroNota
      */
     public FrmRegistroNota() {
         initComponents();
+        setLocationRelativeTo(null);
         alumnos = new ArrayList<>();
         pruebas = new ArrayList<>();
+        registros = new ArrayList<>();
+        modeloA = (DefaultTableModel) tableAlumnos.getModel();
+        modeloP = (DefaultTableModel) tablePruebas.getModel();
+        cargarListas();
+        mostrarTablas();
     }
 
     /**
@@ -37,15 +53,20 @@ public class FrmRegistroNota extends javax.swing.JFrame {
     private void initComponents() {
 
         jScrollPane1 = new javax.swing.JScrollPane();
-        jTable1 = new javax.swing.JTable();
+        tableAlumnos = new javax.swing.JTable();
         jScrollPane2 = new javax.swing.JScrollPane();
-        jTable2 = new javax.swing.JTable();
+        tablePruebas = new javax.swing.JTable();
         jButton1 = new javax.swing.JButton();
         jLabel1 = new javax.swing.JLabel();
+        jLabel2 = new javax.swing.JLabel();
+        lblError = new javax.swing.JLabel();
+        txtNota = new javax.swing.JTextField();
+        jLabel3 = new javax.swing.JLabel();
+        jButton2 = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
-        jTable1.setModel(new javax.swing.table.DefaultTableModel(
+        tableAlumnos.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
 
             },
@@ -53,9 +74,9 @@ public class FrmRegistroNota extends javax.swing.JFrame {
                 "Nombre", "Apellido", "Cedula"
             }
         ));
-        jScrollPane1.setViewportView(jTable1);
+        jScrollPane1.setViewportView(tableAlumnos);
 
-        jTable2.setModel(new javax.swing.table.DefaultTableModel(
+        tablePruebas.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
 
             },
@@ -63,52 +84,161 @@ public class FrmRegistroNota extends javax.swing.JFrame {
                 "Nombre", "Porcentaje"
             }
         ));
-        jScrollPane2.setViewportView(jTable2);
+        jScrollPane2.setViewportView(tablePruebas);
 
-        jButton1.setText("jButton1");
+        jButton1.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
+        jButton1.setText("Agregar");
+        jButton1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton1ActionPerformed(evt);
+            }
+        });
 
         jLabel1.setFont(new java.awt.Font("Tahoma", 0, 24)); // NOI18N
         jLabel1.setText("Registrar Nota");
+
+        jLabel2.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
+        jLabel2.setText("Agregar Alumno");
+        jLabel2.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mousePressed(java.awt.event.MouseEvent evt) {
+                jLabel2MousePressed(evt);
+            }
+        });
+
+        lblError.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
+
+        txtNota.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
+
+        jLabel3.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
+        jLabel3.setText("Nota:");
+
+        jButton2.setText("Ver Notas");
+        jButton2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton2ActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(jButton1)
-                .addGap(388, 388, 388))
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(jLabel1)
-                    .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 541, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 340, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                    .addComponent(lblError, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, 464, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(jLabel2)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(jLabel1))
+                            .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 541, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 340, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(jButton2)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(jLabel3)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(txtNota, javax.swing.GroupLayout.PREFERRED_SIZE, 88, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(18, 18, 18)
+                        .addComponent(jButton1)))
                 .addContainerGap(25, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jLabel1)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jLabel1)
+                    .addComponent(jLabel2))
                 .addGap(45, 45, 45)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 282, Short.MAX_VALUE)
                     .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 62, Short.MAX_VALUE)
-                .addComponent(jButton1)
-                .addGap(56, 56, 56))
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(18, 18, 18)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(jButton1)
+                            .addComponent(txtNota, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jLabel3))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 28, Short.MAX_VALUE))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(jButton2)
+                        .addGap(18, 18, 18)))
+                .addComponent(lblError, javax.swing.GroupLayout.PREFERRED_SIZE, 27, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap())
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    
-    public void cargarAlumnos(){
+    private void jLabel2MousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel2MousePressed
+        FrmPrincipal frm = new FrmPrincipal();
+        frm.setVisible(true);
+        dispose();
+    }//GEN-LAST:event_jLabel2MousePressed
+
+    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+        int rowA = tableAlumnos.getSelectedRow();
+        int rowP = tablePruebas.getSelectedRow();
+        if (rowA > 0 && rowP > 0) {
+            try {
+                RegistroNota r = new RegistroNota();
+                r.setId_alumno(alumnos.get(rowA).getId());
+                r.setId_prueba(pruebas.get(rowP).getId());
+                r.setNota(Float.parseFloat(txtNota.getText()));
+                RegistroNotaBo rbo = new RegistroNotaBo();
+                if (rbo.registrar(r)) {
+                    txtNota.setText("");
+                    lblError.setText("Registro de nota agregada.");
+                }
+            } catch (NumberFormatException ex) {
+                lblError.setText("Favor ingresar la nota.");
+            } catch (MiError ex) {
+                lblError.setText(ex.getMessage());
+            } catch (Exception ex) {
+                lblError.setText("Problemas al registrar la nota");
+            }
+        } else {
+            lblError.setText("Favor seleccionar el alumno y la prueba.");
+        }
+    }//GEN-LAST:event_jButton1ActionPerformed
+
+    private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
+        if (tableAlumnos.getSelectedRow() >= 0) {
+            RegistroNotaBo rbo = new RegistroNotaBo();
+            registros = rbo.cargarRegistro(alumnos.get(tableAlumnos.getSelectedRow()).getId());
+            if (registros.size() > 0) {
+                FrmReporte frm = new FrmReporte(alumnos.get(tableAlumnos.getSelectedRow()), registros, pruebas);
+                frm.setVisible(true);
+                frm.setLocationRelativeTo(null);
+                dispose();
+            } else {
+                lblError.setText("Aun le faltan prubas al estudiante.");
+            }
+        }
+    }//GEN-LAST:event_jButton2ActionPerformed
+
+    public void cargarListas() {
         AlumnoBo abo = new AlumnoBo();
         alumnos = abo.cargarTodo();
+        PruebaBo pbo = new PruebaBo();
+        pruebas = pbo.cargarTodo();
     }
+
+    public void mostrarTablas() {
+        for (Alumno a : alumnos) {
+            modeloA.addRow(new Object[]{a.getNombre(), a.getApellido(), a.getCedula()});
+        }
+        for (Prueba p : pruebas) {
+            modeloP.addRow(new Object[]{p.getNombre(), p.getPorcentaje() + " %"});
+        }
+    }
+
     /**
      * @param args the command line arguments
      */
@@ -146,10 +276,15 @@ public class FrmRegistroNota extends javax.swing.JFrame {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton jButton1;
+    private javax.swing.JButton jButton2;
     private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel2;
+    private javax.swing.JLabel jLabel3;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
-    private javax.swing.JTable jTable1;
-    private javax.swing.JTable jTable2;
+    private javax.swing.JLabel lblError;
+    private javax.swing.JTable tableAlumnos;
+    private javax.swing.JTable tablePruebas;
+    private javax.swing.JTextField txtNota;
     // End of variables declaration//GEN-END:variables
 }

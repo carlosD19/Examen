@@ -15,6 +15,10 @@ import java.util.ArrayList;
  */
 public class PruebaBo {
     
+    /**
+     * llama al metodo de cargar todas las pruebas
+     * @return la lista de las pruebas
+     */
     public ArrayList<Prueba> cargarTodo(){
         PruebaDAO pdao = new PruebaDAO();
         return pdao.cargar();
